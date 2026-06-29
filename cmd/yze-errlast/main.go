@@ -3,8 +3,9 @@
 package main
 
 import (
-	errlast "github.com/gomatic/yze-go-errlast"
 	"golang.org/x/tools/go/analysis/singlechecker"
+
+	errlast "github.com/gomatic/yze-errlast"
 )
 
 // run is the analysis entry point, indirected so the binary's wiring is testable
