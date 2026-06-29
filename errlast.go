@@ -26,15 +26,18 @@ var Analyzer = &analysis.Analyzer{
 var Registration = goyze.Registration{
 	Name:       "errlast",
 	Categories: []goyze.Category{"errors"},
-	URL:        "https://docs.gomatic.dev/yze/go/errlast",
+	URL:        "https://docs.gomatic.dev/yze/errlast",
 	Analyzer:   Analyzer,
 }
 
-// run reports each error result that is not the last return value.
+// run reports each error result that is not the last return value. It inspects
+// every function signature — declarations, methods, interface methods, function
+// literals, and function-typed definitions — because the error-last idiom is a
+// contract on any signature returning an error.
 func run(pass *analysis.Pass) (any, error) {
 	insp := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
-	insp.Preorder([]ast.Node{(*ast.FuncDecl)(nil)}, func(n ast.Node) {
-		checkResults(pass, n.(*ast.FuncDecl).Type.Results)
+	insp.Preorder([]ast.Node{(*ast.FuncType)(nil)}, func(n ast.Node) {
+		checkResults(pass, n.(*ast.FuncType).Results)
 	})
 	return nil, nil
 }
