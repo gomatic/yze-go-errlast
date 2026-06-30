@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/tools/go/analysis/analysistest"
 
-	errlast "github.com/gomatic/yze-errlast"
+	errlast "github.com/gomatic/yze-go-errlast"
 )
 
 func TestErrorMustBeLast(t *testing.T) {

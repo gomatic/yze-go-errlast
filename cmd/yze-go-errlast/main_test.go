@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/analysis"
 
-	errlast "github.com/gomatic/yze-errlast"
+	errlast "github.com/gomatic/yze-go-errlast"
 )
 
 func TestMainRunsTheAnalyzer(t *testing.T) {

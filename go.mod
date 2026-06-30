@@ -1,4 +1,4 @@
-module github.com/gomatic/yze-errlast
+module github.com/gomatic/yze-go-errlast
 
 go 1.26.4
 
