@@ -1,9 +1,6 @@
-# yze-go-errlast
+[![actions](https://github.com/gomatic/yze-go-errlast/actions/workflows/actions.yml/badge.svg)](https://github.com/gomatic/yze-go-errlast/actions/workflows/actions.yml)
+[![docs](https://github.com/gomatic/yze-go-errlast/actions/workflows/docs.yml/badge.svg)](https://github.com/gomatic/yze-go-errlast/actions/workflows/docs.yml)
+[![go](https://github.com/gomatic/yze-go-errlast/actions/workflows/go.yml/badge.svg)](https://github.com/gomatic/yze-go-errlast/actions/workflows/go.yml)
+[![release](https://github.com/gomatic/yze-go-errlast/actions/workflows/release.yml/badge.svg)](https://github.com/gomatic/yze-go-errlast/actions/workflows/release.yml)
 
-A [`yze`](https://github.com/gomatic/yze) analyzer (category `errors`) enforcing the gomatic Go idiom that `error` is always the **last** return value. The convention is a contract on any signature returning an error, so it is checked on function and method declarations, interface method signatures, function literals, and function-typed definitions alike.
-
-- **Rule:** `yze/errlast`
-- **Library:** exports `Analyzer` and `Registration` for the [`yze`](https://github.com/gomatic/yze) aggregator and [`stickler`](https://github.com/gomatic/stickler) runner.
-- **Binary:** `cmd/yze-go-errlast` runs it standalone (`text`/`-json`, and as a `go vet -vettool`).
-
-Built on the [`go-yze`](https://github.com/gomatic/go-yze) framework.
+[docs](https://gomatic.github.io/docs.yze-go-errlast/)
