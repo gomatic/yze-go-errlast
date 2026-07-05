@@ -1,5 +1,11 @@
 // Package errlast provides a go/analysis analyzer enforcing the gomatic Go idiom
 // that error is always the last return value.
+//
+// The analyzer checks only results typed as the builtin error interface type,
+// including aliases of it (e.g. type E = error). Concrete error-implementing
+// types (func f() (*MyErr, int)) and error-constrained type parameters
+// (func f[E error]() (E, int)) are deliberately out of scope: returning a
+// concrete error type is its own smell, not this analyzer's rule.
 package errlast
 
 import (

@@ -53,3 +53,23 @@ func aliasBad() (E, int) { return nil, 0 } // want "error must be the last retur
 
 // aliasGood returns an aliased error last.
 func aliasGood() (int, E) { return 0, nil }
+
+// myErr is a concrete type implementing error.
+type myErr struct{}
+
+func (myErr) Error() string { return "" }
+
+// concreteNotFlagged returns a concrete error-implementing type not last.
+// Deliberately unflagged: the analyzer checks only the builtin error interface
+// type; returning a concrete error type is its own smell, not this rule.
+func concreteNotFlagged() (*myErr, int) { return nil, 0 }
+
+// genericNotFlagged returns an error-constrained type parameter not last.
+// Deliberately unflagged: a type parameter is not the builtin error interface
+// type, even when constrained by it.
+func genericNotFlagged[T error]() (T, int) { var zero T; return zero, 0 }
+
+// multiName declares two error results in one multi-name field; flattened, err
+// sits at position 1 of 3, which is not last, so the shared type expression is
+// flagged once (err2, at the final position, is compliant).
+func multiName() (n int, err, err2 error) { return 0, nil, nil } // want "error must be the last return value"
