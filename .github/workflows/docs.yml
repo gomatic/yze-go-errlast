@@ -20,7 +20,7 @@ on:
       - ".standards.yaml"
       - ".github/workflows/docs.yml"
   schedule:
-    - cron: "25 14 * * 1"
+    - cron: "30 6 22 * *"
   workflow_dispatch:
 concurrency:
   group: docs-${{ github.ref }}
