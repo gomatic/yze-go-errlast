@@ -95,6 +95,34 @@ type Iface interface {
 	OnlyErr() error
 }
 
+// Receiver is a type whose METHOD declarations carry the convention. Methods are
+// their own declaration kind: an exemption keyed on `decl.Recv != nil` excuses
+// every method in every codebase, which is the widest escape Go offers, and a
+// corpus holding the declaration kind constant at plain-function reports
+// identically with it applied.
+type Receiver struct{}
+
+// ValueMethodBad returns error not last on a value receiver.
+func (Receiver) ValueMethodBad() (error, Count) { return nil, 0 } // want "error must be the last return value"
+
+// PointerMethodBad returns error not last on a pointer receiver.
+func (*Receiver) PointerMethodBad() (error, Count) { return nil, 0 } // want "error must be the last return value"
+
+// NamedReceiverMethodBad returns error not last on a named receiver.
+func (r Receiver) NamedReceiverMethodBad() (error, Count) { _ = r; return nil, 0 } // want "error must be the last return value"
+
+// ValueMethodGood returns error last.
+func (Receiver) ValueMethodGood() (Count, error) { return 0, nil }
+
+// GenericReceiver is a generic type whose methods carry the convention too.
+type GenericReceiver[T any] struct{}
+
+// GenericMethodBad returns error not last on a generic receiver.
+func (GenericReceiver[T]) GenericMethodBad() (error, T) { var zero T; return nil, zero } // want "error must be the last return value"
+
+// GenericMethodGood returns error last on a generic receiver.
+func (GenericReceiver[T]) GenericMethodGood() (T, error) { var zero T; return zero, nil }
+
 // closures exercises function literals, which carry their own signatures.
 func closures() {
 	bad := func() (error, Count) { return nil, 0 } // want "error must be the last return value"
@@ -216,3 +244,15 @@ func genericNotFlagged[T error]() (T, Count) { var zero T; return zero, 0 }
 
 // genericAnyNotFlagged returns an unconstrained type parameter not last.
 func genericAnyNotFlagged[T any]() (T, Count) { var zero T; return zero, 0 }
+
+// aliasedTypeParamNotFlagged uses an ALIAS of an error-constrained type parameter
+// as a non-last result. Deliberately unflagged, and it is the only fixture that
+// can show why the unaliasing happens BEFORE the type-parameter refusal: every
+// other alias here resolves to an interface that is reported, so removing the
+// unaliasing leaves them all identical, while this one starts being reported and
+// contradicts the documented type-parameter exclusion.
+func aliasedTypeParamNotFlagged[T error]() {
+	type A = T
+	var g func() (A, Count)
+	_ = g
+}

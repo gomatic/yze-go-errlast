@@ -37,6 +37,24 @@ type report struct {
 // cannot assert a column.
 func analyze(t *testing.T, src source) []report {
 	t.Helper()
+	return analyzeWith(t, src, recordTypes)
+}
+
+// typeRecording is what a pass's TypesInfo carries into the analyzer. It is a
+// parameter because an analyzer does not get to assume the driver recorded a type
+// for every expression, and the refusal for the case where it did not is otherwise
+// unreachable — see TestAResultWithNoRecordedTypeIsRefused.
+type typeRecording bool
+
+const (
+	// recordTypes is the ordinary pass: the driver recorded every expression.
+	recordTypes typeRecording = true
+	// dropTypes is a pass whose TypesInfo has nothing in it, so TypeOf returns nil.
+	dropTypes typeRecording = false
+)
+
+func analyzeWith(t *testing.T, src source, recording typeRecording) []report {
+	t.Helper()
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "p.go", string(src), parser.SkipObjectResolution)
 	require.NoError(t, err)
@@ -48,6 +66,9 @@ func analyze(t *testing.T, src source) []report {
 	files := []*ast.File{file}
 	pkg, err := (&types.Config{}).Check("p", fset, files, info)
 	require.NoError(t, err)
+	if recording == dropTypes {
+		info = &types.Info{}
+	}
 	var got []report
 	_, err = run(&analysis.Pass{
 		Fset:      fset,
@@ -116,6 +137,20 @@ func TestSingleErrorLastIsSilent(t *testing.T) {
 func TestMultipleErrorsAreOneViolationEvenWhenOneIsLast(t *testing.T) {
 	got := analyze(t, "package p\n\nfunc f() (n int, a error, b error) { return 0, nil, nil }\n")
 	assert.Equal(t, []report{{line: 3, column: 18, message: multiErrorMessage}}, got)
+}
+
+// TestAResultWithNoRecordedTypeIsRefused pins the nil arm of isErrorResult, which
+// no fixture can reach: a corpus package always type-checks, so TypeOf always
+// answers. The arm shares its `return false` statement with the type-parameter
+// arm, so statement coverage reports it green while nothing enters it — and
+// deleting `nil` from the label is not cosmetic, because a nil types.Type falls
+// through to isErrorInterface, which calls Underlying on it and segfaults. The
+// contract is that an analyzer does not assume its driver recorded every
+// expression, so a result with no recorded type is refused rather than fatal.
+func TestAResultWithNoRecordedTypeIsRefused(t *testing.T) {
+	src := source("package p\n\nfunc f() (error, int) { return nil, 0 }\n")
+	require.NotEmpty(t, analyzeWith(t, src, recordTypes), "the same source must report when types ARE recorded")
+	assert.Empty(t, analyzeWith(t, src, dropTypes))
 }
 
 // TestMessagesAreTheDocumentedOnes pins the text an author reads. The single-error
