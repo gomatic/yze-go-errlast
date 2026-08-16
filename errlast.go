@@ -92,12 +92,17 @@
 //     result is not last, where no adapter helps because the adapter's own method
 //     carries the foreign signature. That shape is reported and cannot be fixed.
 //     There is deliberately no exemption for it, for two measured reasons. Its
-//     population is ~0: scanning 7,665 files of the Go standard library found ZERO
-//     such interfaces, and 204,559 files of a populated module cache found eight, of
-//     which three are this analyzer's own fixtures, two are an unexported interface
-//     in a 2019 x/tools snapshot, one is an unexported package-level var, and the
-//     one externally importable case lives in a package its own author named
-//     `private`. And every matcher that could recognise it — a name-and-signature
+//     population is ~0, measured 2026-08-15 against go1.26.6 and one populated
+//     module cache, and reproduced by a second party with an independently written
+//     scanner: ZERO such interfaces in the Go standard library's ~7,700 files, and
+//     eight in the cache's ~205,000 — three of them this analyzer's own fixtures,
+//     two an unexported interface in a 2019 x/tools snapshot, one an unexported
+//     package-level var, and the remaining TWO the same externally importable
+//     interface cached at two versions of a module whose own author put it in a
+//     package named `private`. The bound of that enumeration is stated rather than
+//     implied: the scan matches a bare `error` identifier among an interface
+//     method's results, so an interface naming error through an imported alias
+//     would be missed. And every matcher that could recognise it — a name-and-signature
 //     match against an imported type, a satisfied interface, a module-path test — is
 //     forged in a few lines that acquire none of the property, which is the
 //     shape-keyed exemption this suite has already paid twice to learn about. An
